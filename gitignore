@@ -1,0 +1,34 @@
+# Environment variables
+.env
+
+# Database
+*.db
+therabot.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environment
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Instance folder
+instance/
+
+# Old files
+Old\ code/
+data/
+results/
+gpt2_*/
+*_model/
+training.py
+test.py
+textgen_inference*
+textGenTraining.py
