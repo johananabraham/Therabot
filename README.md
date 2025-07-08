@@ -97,3 +97,9 @@ ollama pull llama3
 2. **Engage naturally** - Therabot responds with empathy and understanding
 3. **End your session** - Download a beautiful transcript with insights
 4. **Return anytime** - Your session history is preserved
+
+## 👨‍💻 Author
+
+Built with 💙 by [Johanan Abraham](https://linkedin.com/in/johanangabraham)  
+GitHub: [@johananabraham](https://github.com/johananabraham)  
+Email: johanan.abraham@hotmail.com
