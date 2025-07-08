@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Therabot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://unpkg.com/lottie-web@latest/build/player/lottie.min.js"></script>
+</head>
+<body>
+    <!-- Simple End Session Confirmation -->
+    <div id="endSessionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📄 End Your Session</h2>
+                <span class="close" onclick="hideEndSessionModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Ready to wrap up your session?</p>
+                <div class="modal-features">
+                    <div class="feature">
+                        <span class="feature-icon">📝</span>
+                        <span>Beautiful conversation transcript</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📊</span>
+                        <span>Session insights and mood summary</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💭</span>
+                        <span>Thoughtful reflection and encouragement</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💾</span>
+                        <span>Instant text file download</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+                    Your session transcript will be automatically downloaded to help you reflect on your journey.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="hideEndSessionModal()" class="btn-secondary">Continue Chatting</button>
+                <button onclick="confirmEndSession()" class="btn-primary">📄 End Session & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Back Modal -->
+    {% if returning_user %}
+    <div id="welcomeBackModal" class="modal" style="display: block;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👋 Welcome Back!</h2>
+            </div>
+            <div class="modal-body">
+                <p>Great to see you again! Your previous session from <strong>{{ previous_session_date }}</strong> has been restored.</p>
+                <p>All your conversation history is loaded and ready to continue where you left off.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="hideWelcomeBackModal()" class="btn-primary">Continue Session</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container initial">
+        <div class="therapist-section">
+            <div class="header-title">Safe Space for Healing</div>
+            <div id="therapist-avatar"></div>
+            <div class="therapist-title">Therabot</div>
+            <div class="therapist-subtitle">Your AI Therapy Assistant</div>
+            <div class="explanation-text">
+                I'm here to listen and support you through whatever you're experiencing. Feel free to share what's on your mind, and we can work through it together at your own pace. Everything you share is private and confidential.
+            </div>
+            <div class="initial-input">
+                <input class="initial-msg" type="text" placeholder="How are you feeling today?">
+                <div class="audio-visualizer" id="audioVisualizerInitial"></div>
+                <button onclick="startConversation()">Start</button>
+                <button onclick="startListeningInitial()">🎤 Speak</button>
+            </div>
+        </div>
+        
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="chat-header-avatar">🤖</div>
+                <div class="chat-header-info">
+                    <h2>Therabot</h2>
+                    <p class="chat-header-status">Online • Ready to help</p>
+                </div>
+                <div class="chat-header-actions">
+                    <button onclick="showEndSessionModal()" class="end-session-btn" title="End session and download transcript">
+                        📄 End Session
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-box">
+                <div id="chat">
+                    {% if returning_user %}
+                    <div class="session-restored-notice">
+                        <div class="notice-content">
+                            <span class="notice-icon">🔄</span>
+                            <div class="notice-text">
+                                <strong>Session Restored</strong>
+                                <p>Your conversation from {{ previous_session_date }} has been loaded</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div id="typing-indicator" style="display: none;">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span style="margin-left: 8px; color: #666;">Therabot is thinking...</span>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input id="msg" type="text" placeholder="How are you feeling today?">
+                <div class="audio-visualizer" id="audioVisualizer"></div>
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="startListening()">🎤 Speak</button>
+                <button onclick="exportChat()" class="export-btn" title="Export chat history">📄 Export</button>
+                <button onclick="stopSpeech()" id="stopBtn" style="display:none;">⏹️ Stop</button>
+            </div>
+            
+            <div id="status" class="status"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    {% if returning_user %}
+    <script>
+        // Auto-expand to chat for returning users
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                expandToChat();
+                loadPreviousMessages();
+            }, 1000);
+        });
+        
+        async function loadPreviousMessages() {
+            // Previous messages will be loaded by the backend
+            // This is just for any additional frontend setup
+            console.log('Session restored for returning user');
+        }
+    </script>
+    {% endif %}
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+    <title>Therabot</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://unpkg.com/lottie-web@latest/build/player/lottie.min.js"></script>
+</head>
+<body>
+    <!-- Email Setup Modal (for new users) -->
+    <div id="emailSetupModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📧 Welcome to Therabot!</h2>
+            </div>
+            <div class="modal-body">
+                <p>To get the most out of your therapy session, we'll send you a comprehensive summary with sentiment analysis when you're done.</p>
+                <div class="input-group">
+                    <label for="setupEmail">Your Email Address:</label>
+                    <input type="email" id="setupEmail" placeholder="your-email@example.com" required>
+                </div>
+                <div class="modal-features">
+                    <div class="feature">
+                        <span class="feature-icon">📊</span>
+                        <span>Emotional journey visualization</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📄</span>
+                        <span>Complete conversation transcript</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔗</span>
+                        <span>Return link to continue later</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 15px;">
+                    <strong>Optional:</strong> You can skip this and still use the chat normally.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="skipEmailSetup()" class="btn-secondary">Skip for Now</button>
+                <button onclick="saveEmailAndStart()" class="btn-primary">Save & Start Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simple End Session Confirmation -->
+    <div id="endSessionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✨ End Your Session</h2>
+                <span class="close" onclick="hideEndSessionModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Ready to wrap up your session?</p>
+                <div id="emailStatus" class="email-status">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <p style="font-size: 0.9em; color: #666; margin-top: 20px;">
+                    Your session summary will be automatically sent to your email with sentiment analysis and a return link.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="hideEndSessionModal()" class="btn-secondary">Continue Chatting</button>
+                <button onclick="confirmEndSession()" class="btn-primary">✨ End Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Back Modal -->
+    {% if returning_user %}
+    <div id="welcomeBackModal" class="modal" style="display: block;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>👋 Welcome Back!</h2>
+            </div>
+            <div class="modal-body">
+                <p>Great to see you again! Your previous session from <strong>{{ previous_session_date }}</strong> has been restored.</p>
+                <p>All your conversation history is loaded and ready to continue where you left off.</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="hideWelcomeBackModal()" class="btn-primary">Continue Session</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container initial">
+        <div class="therapist-section">
+            <div class="header-title">Safe Space for Healing</div>
+            <div id="therapist-avatar"></div>
+            <div class="therapist-title">Therabot</div>
+            <div class="therapist-subtitle">Your AI Therapy Assistant</div>
+            <div class="explanation-text">
+                I'm here to listen and support you through whatever you're experiencing. Feel free to share what's on your mind, and we can work through it together at your own pace. Everything you share is private and confidential.
+            </div>
+            <div class="initial-input">
+                <input class="initial-msg" type="text" placeholder="How are you feeling today?">
+                <div class="audio-visualizer" id="audioVisualizerInitial"></div>
+                <button onclick="startConversation()">Start</button>
+                <button onclick="startListeningInitial()">🎤 Speak</button>
+            </div>
+        </div>
+        
+        <div class="chat-section">
+            <div class="chat-header">
+                <div class="chat-header-avatar">🤖</div>
+                <div class="chat-header-info">
+                    <h2>Therabot</h2>
+                    <p class="chat-header-status">Online • Ready to help</p>
+                </div>
+                <div class="chat-header-actions">
+                    <button onclick="showEndSessionModal()" class="end-session-btn" title="End session and get email summary">
+                        ✨ End Session
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chat-box">
+                <div id="chat">
+                    {% if returning_user %}
+                    <div class="session-restored-notice">
+                        <div class="notice-content">
+                            <span class="notice-icon">🔄</span>
+                            <div class="notice-text">
+                                <strong>Session Restored</strong>
+                                <p>Your conversation from {{ previous_session_date }} has been loaded</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div id="typing-indicator" style="display: none;">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span style="margin-left: 8px; color: #666;">Therabot is thinking...</span>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input id="msg" type="text" placeholder="How are you feeling today?">
+                <div class="audio-visualizer" id="audioVisualizer"></div>
+                <button onclick="sendMessage()">Send</button>
+                <button onclick="startListening()">🎤 Speak</button>
+                <button onclick="exportChat()" class="export-btn" title="Export chat history">📄 Export</button>
+                <button onclick="stopSpeech()" id="stopBtn" style="display:none;">⏹️ Stop</button>
+            </div>
+            
+            <div id="status" class="status"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+    {% if returning_user %}
+    <script>
+        // Auto-expand to chat for returning users
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                expandToChat();
+                loadPreviousMessages();
+            }, 1000);
+        });
+        
+        async function loadPreviousMessages() {
+            // Previous messages will be loaded by the backend
+            // This is just for any additional frontend setup
+            console.log('Session restored for returning user');
+        }
+    </script>
+    {% endif %}
+</body>
+</html>>
+</html>
